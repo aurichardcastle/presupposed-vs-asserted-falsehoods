@@ -20,8 +20,8 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MODELS = {
     "gpt-4o": "openai/gpt-4o",
-    "claude-sonnet-4-5": "anthropic/claude-sonnet-4-5",
-    "gemini-2.0-flash": "google/gemini-2.0-flash-001",
+    "claude-sonnet-4-5": "anthropic/claude-sonnet-4.5",
+    "gemini-2.0-flash": "google/gemini-2.0-flash",
 }
 
 RUNS_PER_COMBO = 3
