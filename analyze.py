@@ -28,12 +28,11 @@ MODEL_LABELS = {
     "claude-sonnet-4-5": "Claude Sonnet 4.5",
     "gemini-2.0-flash": "Gemini 2.0 Flash",
 }
-CONDITIONS = ["A", "B", "C", "D"]
+CONDITIONS = ["A", "B", "C"]
 CONDITION_LABELS = {
     "A": "Presupposed-False",
     "B": "Asserted-False",
     "C": "Presupposed-True (Control)",
-    "D": "Authority + Presupposed-False",
 }
 
 
@@ -117,9 +116,6 @@ def run_posthoc_wilcoxon(friedman_results: list[dict]) -> list[dict]:
         ("A", "B"): "Presupposed-False vs Asserted-False",
         ("A", "C"): "Presupposed-False vs True Control",
         ("B", "C"): "Asserted-False vs True Control",
-        ("A", "D"): "Presupposed-False vs Authority+Presupposed",
-        ("B", "D"): "Asserted-False vs Authority+Presupposed",
-        ("C", "D"): "True Control vs Authority+Presupposed",
     }
     posthoc = []
     for fr in friedman_results:
@@ -183,7 +179,7 @@ def run_posthoc_wilcoxon(friedman_results: list[dict]) -> list[dict]:
 def compute_score_distributions(df: pd.DataFrame) -> pd.DataFrame:
     """Count how many responses fall in each score category per model × condition."""
     rows = []
-    active_conds = [c for c in ["A", "B", "D"] if c in df["condition"].values]
+    active_conds = [c for c in ["A", "B"] if c in df["condition"].values]
     for model in MODELS:
         for cond in active_conds:
             subset = df[(df["model"] == model) & (df["condition"] == cond)]
@@ -206,7 +202,7 @@ def plot_mean_scores(desc_stats: pd.DataFrame, output_dir: str):
     fig, ax = plt.subplots(figsize=(12, 6))
 
     plot_data = desc_stats[desc_stats["Condition"] != "Presupposed-True (Control)"].copy()
-    plot_conds = [c for c in ["Presupposed-False", "Asserted-False", "Authority + Presupposed-False"]
+    plot_conds = [c for c in ["Presupposed-False", "Asserted-False"]
                   if c in plot_data["Condition"].values]
 
     models_list = [MODEL_LABELS[m] for m in MODELS]
@@ -217,7 +213,6 @@ def plot_mean_scores(desc_stats: pd.DataFrame, output_dir: str):
     colors = {
         "Presupposed-False": "#5B8FB9",
         "Asserted-False": "#B6533A",
-        "Authority + Presupposed-False": "#6B3FA0",
     }
 
     for i, cond in enumerate(plot_conds):
@@ -261,12 +256,8 @@ def plot_score_distributions(dist_df: pd.DataFrame, output_dir: str):
         3: "Elaborative Acceptance",
     }
 
-    has_d = "Authority + Presupposed-False" in dist_df["Condition"].values
     conds = ["Presupposed-False", "Asserted-False"]
     cond_xlabels = ["Presupposed\nFalse", "Asserted\nFalse"]
-    if has_d:
-        conds.append("Authority + Presupposed-False")
-        cond_xlabels.append("Authority +\nPresupposed")
 
     for idx, model in enumerate(MODELS):
         ax = axes[idx]
@@ -420,8 +411,7 @@ def generate_results_text(
     lines.append(f"{'='*70}")
     lines.append(f"Note. The Friedman test is a non-parametric alternative to the")
     lines.append(f"repeated-measures ANOVA for ordinal data across related conditions")
-    lines.append(f"(A: presupposed-false, B: asserted-false, C: true control,")
-    lines.append(f"D: authority + presupposed-false).\n")
+    lines.append(f"(A: presupposed-false, B: asserted-false, C: true control).\n")
 
     # Post-hoc results
     lines.append(f"{'='*70}")
@@ -446,7 +436,7 @@ def generate_results_text(
     lines.append(f"(adjusted α = .0167). W = Wilcoxon signed-rank statistic.\n")
 
     # Score distribution summary
-    active_dist_conds = [c for c in ["Presupposed-False", "Asserted-False", "Authority + Presupposed-False"]
+    active_dist_conds = [c for c in ["Presupposed-False", "Asserted-False"]
                          if c in dist_df["Condition"].values]
     lines.append(f"{'='*80}")
     lines.append(f"Table 4. Score Category Distributions (False-Premise Conditions)")
@@ -493,7 +483,6 @@ def generate_results_text(
         stats_a = get_stats("Presupposed-False")
         stats_b = get_stats("Asserted-False")
         stats_c = get_stats("Presupposed-True (Control)")
-        stats_d = get_stats("Authority + Presupposed-False")
 
         n_conds = len(fr.get("conditions_used", CONDITIONS))
         lines.append(
@@ -517,14 +506,6 @@ def generate_results_text(
             lines.append(
                 f"The true-presupposition control (Condition C) yielded "
                 f"M = {stats_c['M']:.3f} (SD = {stats_c['SD']:.3f}, N = {int(stats_c['N'])})."
-            )
-
-        if stats_d is not None:
-            lines.append(
-                f"Authority-framed presupposed-false prompts (Condition D) yielded "
-                f"M = {stats_d['M']:.3f} (SD = {stats_d['SD']:.3f}, N = {int(stats_d['N'])}), "
-                f"{'higher' if stats_d['M'] > stats_a['M'] else 'comparable to or lower'} "
-                f"than the unframed presupposed condition."
             )
 
         model_posthoc = [
@@ -551,20 +532,11 @@ def generate_results_text(
 
 def main():
     script_dir = Path(__file__).parent
-    input_path = script_dir / INPUT_CSV
     output_dir = script_dir / OUTPUT_DIR
 
-    # Auto-detect which dataset to use
-    merged_path = script_dir / "scored_responses_all.csv"
-    base_path = script_dir / "scored_responses.csv"
-    if merged_path.exists():
-        input_path = merged_path
-        print(f"Using merged dataset: {merged_path.name}")
-    elif base_path.exists():
-        input_path = base_path
-        print(f"Using base dataset: {base_path.name}")
-    else:
-        print("Error: No scored responses found. Run autoscore.py first.")
+    input_path = script_dir / "scored_responses.csv"
+    if not input_path.exists():
+        print(f"Error: {input_path.name} not found.")
         sys.exit(1)
 
     output_dir.mkdir(exist_ok=True)
@@ -578,15 +550,14 @@ def main():
 
     # Count exclusions from original responses
     exclusions = {"truncated": 0, "empty": 0, "refusal": 0, "error": 0, "total_collected": 0}
-    for resp_file in ["responses.csv", "responses_d.csv"]:
-        orig_path = script_dir / resp_file
-        if orig_path.exists():
-            orig = pd.read_csv(str(orig_path))
-            exclusions["total_collected"] += len(orig)
-            exclusions["truncated"] += int((orig.get("is_truncated", pd.Series()) == "True").sum())
-            exclusions["empty"] += int((orig.get("is_empty", pd.Series()) == "True").sum())
-            exclusions["refusal"] += int((orig.get("is_refusal", pd.Series()) == "True").sum())
-            exclusions["error"] += int(orig.get("error", pd.Series()).apply(lambda x: bool(x) and str(x) != "").sum())
+    orig_path = script_dir / "responses.csv"
+    if orig_path.exists():
+        orig = pd.read_csv(str(orig_path))
+        exclusions["total_collected"] += len(orig)
+        exclusions["truncated"] += int((orig.get("is_truncated", pd.Series()) == "True").sum())
+        exclusions["empty"] += int((orig.get("is_empty", pd.Series()) == "True").sum())
+        exclusions["refusal"] += int((orig.get("is_refusal", pd.Series()) == "True").sum())
+        exclusions["error"] += int(orig.get("error", pd.Series()).apply(lambda x: bool(x) and str(x) != "").sum())
 
     print("Computing median scores (across 3 runs per item)...")
     medians = compute_median_scores(df)
