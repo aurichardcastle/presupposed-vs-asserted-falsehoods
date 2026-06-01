@@ -18,7 +18,7 @@ When a false factual premise is **presupposed** inside a question rather than **
 | Asserted-false | 12.2% |
 | | **p < .001** |
 
-The effect is driven by the syntactic packaging of the claim, not its content — each item uses the same false claim in both conditions, differing only in grammatical framing.
+The effect is driven by the syntactic packaging of the claim, not its content. Each item uses the same false claim in both conditions, differing only in grammatical framing.
 
 ### By Model
 
@@ -47,8 +47,8 @@ Even when models eventually correct a false premise, presupposed prompts cause t
 
 The study bridges two literatures that have proceeded largely in parallel:
 
-- **AI alignment:** Sycophancy is a documented artifact of RLHF — models trained on human preference data systematically accommodate user-supplied falsehoods (Perez et al., 2023; Sharma et al., 2024).
-- **Linguistic pragmatics:** Presupposed content is processed as accepted background, not as a new claim requiring evaluation (Strawson, 1950; Karttunen, 1973; Stalnaker, 1974). Lewis (1979) formalized "accommodation" — cooperative listeners add presupposed content to the common ground rather than challenge it.
+- **AI alignment:** Sycophancy is a documented artifact of RLHF. Models trained on human preference data systematically accommodate user-supplied falsehoods (Perez et al., 2023; Sharma et al., 2024).
+- **Linguistic pragmatics:** Presupposed content is processed as accepted background, not as a new claim requiring evaluation (Strawson, 1950; Karttunen, 1973; Stalnaker, 1974). Lewis (1979) formalized "accommodation": cooperative listeners add presupposed content to the common ground rather than challenge it.
 
 No prior study had tested whether Lewis's accommodation framework predicts LLM sycophancy behavior. This study addresses that gap.
 
@@ -58,11 +58,11 @@ No prior study had tested whether Lewis's accommodation framework predicts LLM s
 
 **Two sub-studies**, each with 40 history-domain items:
 
-- **Study 1** — Well-known myths (e.g., "Viking helmets had horns"). Three conditions: presupposed-false, asserted-false, presupposed-true control. *Result:* Near-ceiling correction regardless of framing (floor effect). Models reliably catch obvious myths.
+- **Study 1:** Well-known myths (e.g., "Viking helmets had horns"). Three conditions: presupposed-false, asserted-false, presupposed-true control. Near-ceiling correction regardless of framing (floor effect). Models reliably catch obvious myths.
 
-- **Study 2** — Nuanced/contested historical claims (e.g., causes of the American Civil War). Two conditions: presupposed-false, asserted-false. *Result:* Significant presupposition effect. The effect only emerges when claims are complex enough to exceed the models' confident correction threshold.
+- **Study 2:** Nuanced/contested historical claims (e.g., causes of the American Civil War). Two conditions: presupposed-false, asserted-false. Significant presupposition effect. The effect only emerges when claims are complex enough to exceed the models' confident correction threshold.
 
-**Scoring:** 4-point ordinal sycophancy rubric (0 = explicit correction → 3 = elaborative acceptance). Primary judge: Claude Sonnet 4.6 (held out from study sample), blinded to model identity. Cross-validation: GPT-4o on 199-response subset (80.4% exact agreement, 100% within one point, Spearman ρ = .774).
+**Scoring:** 4-point ordinal sycophancy rubric (0 = explicit correction, 3 = elaborative acceptance). Primary judge: Claude Sonnet 4.6 (held out from study sample), blinded to model identity. Cross-validation: GPT-4o on 199-response subset (80.4% exact agreement, 100% within one point, Spearman rho = .774).
 
 **Parameters:** Temperature = 0 | Max tokens = 1,200 | 3 runs per prompt | API gateway: OpenRouter | Collection window: April 2026
 
@@ -71,8 +71,8 @@ No prior study had tested whether Lewis's accommodation framework predicts LLM s
 ## Repository Structure
 
 ```
-├── items.json                    # Study 1 stimulus set (40 items × 3 conditions)
-├── items_nuanced.json            # Study 2 stimulus set (40 items × 2 conditions)
+├── items.json                    # Study 1 stimulus set (40 items x 3 conditions)
+├── items_nuanced.json            # Study 2 stimulus set (40 items x 2 conditions)
 ├── collect.py                    # Study 1 data collection (OpenRouter API)
 ├── collect_nuanced.py            # Study 2 data collection
 ├── responses.csv                 # Study 1 raw responses (1,080 expected)
@@ -91,17 +91,17 @@ No prior study had tested whether Lewis's accommodation framework predicts LLM s
 
 ```
 Stimulus design (items.json)
-        │
-        ▼
-Data collection (collect.py)          3 models × 40 items × 3 conditions × 3 runs
-        │
-        ▼
+        |
+        v
+Data collection (collect.py)          3 models x 40 items x 3 conditions x 3 runs
+        |
+        v
 Blinded LLM scoring (judge.py)       Claude Sonnet 4.6, model identity stripped
-        │
-        ▼
+        |
+        v
 Cross-validation (cross_validate_judge.py)    GPT-4o on stratified 199-response subset
-        │
-        ▼
+        |
+        v
 Statistical analysis (analyze.py)    Chi-square, Kruskal-Wallis, Wilcoxon,
                                      Mann-Whitney U, correction timing analysis
 ```
@@ -122,7 +122,7 @@ python cross_validate_judge.py   # Cross-validate with GPT-4o
 python analyze.py                # Generate results + figures
 ```
 
-The collection scripts support resume — they skip already-collected rows if interrupted.
+The collection scripts support resume and will skip already-collected rows if interrupted.
 
 ---
 
@@ -140,4 +140,4 @@ MIT
 
 ## Author
 
-**Auric Hardcastle** — [LinkedIn](https://linkedin.com/in/auric-hardcastle) · [GitHub](https://github.com/AuricHardcastle)
+**Auric Hardcastle** · [LinkedIn](https://linkedin.com/in/auric-hardcastle) · [GitHub](https://github.com/AuricHardcastle)
