@@ -93,7 +93,8 @@ No prior study had tested whether Lewis's accommodation framework predicts LLM s
 Stimulus design (items.json)
         |
         v
-Data collection (collect.py)          3 models x 40 items x 3 conditions x 3 runs
+Data collection (collect.py)          Study 1: 3 models x 40 items x 3 conditions x 3 runs
+                                     Study 2: 3 models x 40 items x 2 conditions x 3 runs
         |
         v
 Blinded LLM scoring (judge.py)       Claude Sonnet 4.6, model identity stripped
@@ -102,7 +103,8 @@ Blinded LLM scoring (judge.py)       Claude Sonnet 4.6, model identity stripped
 Cross-validation (cross_validate_judge.py)    GPT-4o on stratified 199-response subset
         |
         v
-Statistical analysis (analyze.py)    Chi-square, Kruskal-Wallis, Wilcoxon,
+Statistical analysis (analyze.py)    Chi-square, Wilcoxon signed-rank (item-level),
+                                     Kruskal-Wallis (trigger types),
                                      Mann-Whitney U, correction timing analysis
 ```
 
@@ -130,8 +132,8 @@ The collection scripts support resume and will skip already-collected rows if in
 
 ```
 Hardcastle, A. (2026). Presupposed vs Asserted Falsehoods: Measuring Premise
-Sycophancy in GPT-4o, Claude Sonnet 4.5, and Gemini 2.0 Flash. Singapore
-American School, Quest: AT English.
+Sycophancy in GPT-4o, Claude Sonnet 4.5, and Gemini 2.0 Flash. Independent
+research, Singapore.
 ```
 
 ## License
